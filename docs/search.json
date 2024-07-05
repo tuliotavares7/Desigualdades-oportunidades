@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Desigualdades de oportunidades",
+    "section": "",
+    "text": "Linking to GEOS 3.9.3, GDAL 3.5.2, PROJ 8.2.1; sf_use_s2() is TRUE\n\n\n\nAnalisando a desigualdade no acesso às oportunidades\n\n\nUsing mode public_transport\n\n\nDownloading accessibility data for the year 2019\n\n\nDownloading land use data for the year 2019\n\n\nDownloading population data for the year 2010\n\n\n\n\n\n\n\n\n\n[1] 3.275966\n\n\n\n\nIn less than 60 min. by public transport, the 10% wealthiest population could access on average 3.3 times more job opportunites than the 40% poorest people\n\n\n\n\n      média   branca    negra\n1: 30.91763 28.74013 33.35663\n\n\n\n\n\n\n\n\n\nMapeando a acessibilidade urbana\n\n\nUsing mode public_transport\n\n\nDownloading accessibility data for the year 2019\n\n\nDownloading land use data for the year 2019\n\n\nDownloading population data for the year 2010\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMapeando dados populacionais\n\n\nDownloading population data for the year 2010\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMapeando dados de uso da terra\n\n\nDownloading land use data for the year 2019\n\n\nDownloading population data for the year 2010\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nReferências\nPereira, Rafael HM et al. (2022) Distribuição espacial de características sociodemográficas e localização de empregos e serviços públicos das vinte maiores cidades do Brasil. Texto para Discussão 2772 . Ipea - Instituto de Pesquisa Econômica Aplicada. Disponível em http://repositorio.ipea.gov.br/handle/11058/11225\nPereira, Rafael HM et al. (2022) Estimativas de acessibilidade a empregos e serviços públicos via transporte ativo, público e privado nas 20 maiores cidades do Brasil em 2017, 2018, 2019. Texto para Discussão . Ipea - Instituto de Pesquisa Econômica Aplicada.\nPereira, Rafael H. M.; Braga, Carlos Kauê Vieira; Serra, Bernardo; Nadalin, Vanessa Gapriotti (2019) : Desigualdades socioespaciais de acesso a oportunidades nas cidades brasileiras - 2019, Texto para Discussão, No. 2535, Instituto de Pesquisa Econômica Aplicada (IPEA), Brasília."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  }
+]

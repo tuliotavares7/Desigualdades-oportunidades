@@ -1,0 +1,315 @@
+---
+title: "Desigualdades de oportunidades"
+execute:
+  echo: false
+---
+
+
+
+```{r}
+library(aopdata)
+library(sf)
+library(ggplot2)
+library(data.table)
+library(scales)
+```
+
+
+
+
+# Analisando a desigualdade no acesso às oportunidades
+
+```{r}
+#| label: scatterplot
+#| echo: false
+# Download accessibility data
+
+
+df <- read_access(city='Rio de Janeiro',
+                   mode='public_transport',
+                   peak = TRUE,
+                   year=2019,
+                   showProgress = FALSE)
+```
+
+
+
+
+
+
+```{r}
+ggplot() +
+  geom_boxplot(data = subset(df, !is.na(R003)),
+               aes(x = factor(R003), y = CMATT60/1000, color = factor(R003))) +
+  scale_color_brewer(palette = 'RdBu') +
+  labs(
+    title = 'Distribuição do número de empregos acessíveis na cidade do Rio de Janeiro',
+    color = "Decil de\nrenda",
+    subtitle = 'por transporte público em menos de 60 min. por decil de renda',
+    x = 'Decil de renda',
+    y = "N. de empregos acessíveis\n(milhares)"
+  ) +
+  scale_x_discrete(labels = c("D1 Mais pobre", paste0('D', 2:9), "D10 Mais rico")) +
+  theme_minimal()
+```
+
+
+
+
+
+```{r}
+# Palma ratio
+
+
+# average access of the wealthiest 10%
+avg_access_10p_wealthiest <- df[ R003==10, weighted.mean(x=CMATT60, w=P001, na.rm=T)]
+
+# average access of the poorest 40%
+avg_access_40p_poorest <- df[ R003<=4, weighted.mean(x=CMATT60, w=P001, na.rm=T)]
+
+# Palma ratio
+palma_ratio <- avg_access_10p_wealthiest / avg_access_40p_poorest                
+palma_ratio 
+
+```
+
+
+
+
+```{r}
+# This means that:
+message( paste0('In less than 60 min. by public transport, the 10% wealthiest population could access on average ', round(palma_ratio,1), ' times more job opportunites than the 40% poorest people') )
+```
+
+
+
+
+```{r}
+# Desigualdade no tempo de viagem até o hospital mais próximo
+
+# Substituir tempo de viagem Infinito por 120 minutos
+df[, TMISA := fifelse(TMISA == Inf, 120, TMISA)]
+
+
+# Calcular tempo médio de viagem por raça
+df[, .(média = weighted.mean(x = TMISA, w = P001, na.rm = TRUE),
+       branca = weighted.mean(x = TMISA, w = P002, na.rm = TRUE),
+       negra = weighted.mean(x = TMISA, w = P003, na.rm = TRUE))]
+```
+
+
+
+
+
+```{r}
+# Calcular tempo médio de viagem por renda
+temp <- df[, .(média = weighted.mean(x = TMISA, w = P001, na.rm = TRUE)), by = R003]
+temp <- na.omit(temp)
+
+ggplot() + 
+  geom_point(data = temp, aes(y = média, x = factor(R003))) +
+  labs(x = 'Decil de renda', y = 'Tempo médio de viagem até\no hospital mais próximo') +
+  theme_minimal()
+```
+
+
+# Mapeando a acessibilidade urbana
+
+```{r}
+# download aop data
+# Download accessibility data
+
+
+df <- aopdata::read_access(city='Rio de Janeiro',
+                       mode='public_transport',
+                      year=2019,
+                      peak = FALSE,
+                      geometry = TRUE,
+                      showProgress = FALSE)
+```
+
+
+
+
+
+```{r}
+
+# Plotar mapa com distribuição espacial do acesso a oportunidades de emprego
+
+ggplot() +
+  geom_sf(data = df, aes(fill = CMATT60), color = NA, alpha = 0.9) +
+  scale_fill_viridis_c(option = "inferno", labels = scales::comma) +
+  labs(
+    title = 'Número de empregos acessíveis na cidade do Rio de Janeiro',
+    fill = "Acessibilidade",
+    subtitle = 'por transporte público em menos de 60 min.'
+  ) +
+  theme_void()
+```
+
+
+```{r}
+# Mapa de acesso às escolas
+
+ggplot() +
+  geom_sf(data = df, aes(fill = CMAET30), color = NA, alpha = 0.9) +
+  scale_fill_viridis_c(option = "cividis", labels = scales::comma) +
+  labs(
+    title = 'Número de escolas acessíveis na cidade do Rio de Janeiro',
+    fill = "Acessibilidade",
+    subtitle = 'por transporte público em menos de 30 min.'
+  ) +
+  theme_void()
+```
+
+
+
+# Mapeando dados populacionais
+
+```{r}
+# download aop data
+df <- read_population(city='Rio de Janeiro',
+                      year=2010,
+                      geometry = TRUE,
+                      showProgress = FALSE)
+```
+
+
+
+
+```{r}
+# Mapa da distribuição espacial da população
+
+ggplot() +
+  geom_sf(data = subset(df, P001 > 0), aes(fill = P001), color = NA, alpha = 0.8) +
+  scale_fill_distiller(palette = "YlOrRd", direction = 1) +
+  labs(
+    title = 'Distribuição da população da cidade do Rio de Janeiro',
+    fill = "População total"
+  ) +
+  theme_void()
+```
+
+
+
+```{r}
+# Mapa da distribuição espacial da população por décil de renda
+
+ggplot() +
+  geom_sf(data = subset(df, !is.na(R002)), aes(fill = factor(R003)), color = NA, alpha = 0.8) +
+  scale_fill_brewer(palette = "RdBu") +
+  labs(
+    title = 'Renda média domiciliar per capita',
+    fill = "Décil de renda"
+  ) +
+  theme_void()
+``` 
+
+
+
+
+
+```{r}
+# Mapa da distribuição espacial da proporção da população negra 
+
+df$prop_black <- df$P003 / df$P001
+
+ggplot() +
+  geom_sf(data = subset(df, P001 > 0), aes(fill = prop_black), color = NA, alpha = 0.8) +
+  scale_fill_distiller(palette = "RdPu", direction = 1, labels = scales::percent) +
+  labs(
+    title = 'Proporção da população negra na cidade do Rio de Janeiro',
+    fill = "População negra"
+  ) +
+  theme_void()
+```
+
+
+
+# Mapeando dados de uso da terra
+
+```{r}
+# download aop data
+df <- read_landuse(city='Rio de Janeiro',
+                   year=2019,
+                   geometry = T,
+                   showProgress = F)
+
+```
+
+
+
+
+```{r}
+
+# Mapa da distribuição espacial do número de empregos
+
+ggplot() +
+  geom_sf(data = df, aes(fill = T001), color = NA, alpha = 0.9) +
+  scale_fill_distiller(palette = "YlOrRd", direction = 1) +
+  labs(
+    title = 'Distribuição espacial de empregos na cidade do Rio de Janeiro',
+    fill = "N. de empregos"
+  ) +
+  theme_void()
+```
+
+
+
+
+
+```{r}
+
+# Mapa da distribuição espacial de escolas de ensino fundamental
+
+ggplot() +
+  geom_sf(data = df, aes(fill = factor(E003)), color = NA, alpha = 0.9) +
+  scale_fill_brewer(palette = "PuBuGn", direction = 1) +
+  labs(
+    title = 'Distribuição espacial de escolas de ensino fundamental da cidade do Rio de Janeiro',
+    fill = "N. de escolas"
+  ) +
+  theme_void()
+```
+
+
+
+
+```{r}
+
+# Mapa da distribuição espacial de hospitais
+
+ggplot() +
+  geom_sf(data = df, aes(fill = factor(S004)), color = NA, alpha = 0.9) +
+  scale_fill_brewer(palette = "YlGnBu", direction = 1) +
+  labs(
+    title = 'Distribuição espacial de hospitais na cidade do Rio de Janeiro',
+    fill = "N. de hospitais"
+  ) +
+  theme_void()
+```
+
+
+
+
+```{r}
+
+# Mapa da distribuição espacial de Centros de Referência de Assistência Social (CRAS)
+
+ggplot() +
+  geom_sf(data = df, aes(fill = factor(C001)), color = NA, alpha = 0.9) +
+  scale_fill_viridis_d(option = "C", direction = -1) +  # Escolha da paleta viridis
+  labs(
+    title = 'Distribuição espacial de unidades do CRAS da cidade do Rio de Janeiro',
+    fill = "N. de CRAS"
+  ) +
+  theme_void()
+```
+
+
+# Referências
+Pereira, Rafael HM et al. (2022) Distribuição espacial de características sociodemográficas e localização de empregos e serviços públicos das vinte maiores cidades do Brasil. Texto para Discussão 2772 . Ipea - Instituto de Pesquisa Econômica Aplicada. Disponível em http://repositorio.ipea.gov.br/handle/11058/11225
+
+Pereira, Rafael HM et al. (2022) Estimativas de acessibilidade a empregos e serviços públicos via transporte ativo, público e privado nas 20 maiores cidades do Brasil em 2017, 2018, 2019. Texto para Discussão . Ipea - Instituto de Pesquisa Econômica Aplicada.
+
+Pereira, Rafael H. M.; Braga, Carlos Kauê Vieira; Serra, Bernardo; Nadalin, Vanessa Gapriotti (2019) : Desigualdades socioespaciais de acesso a oportunidades nas cidades brasileiras - 2019, Texto para Discussão, No. 2535, Instituto de Pesquisa Econômica Aplicada (IPEA), Brasília.
